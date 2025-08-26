@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Puente Colgante Interactivo</title>
+<style>
+  body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    background: linear-gradient(to bottom, #a0c4ff, #caf0f8);
+    color: #03045e;
+  }
+
+  h1 {
+    margin-top: 20px;
+    font-size: 2em;
+    text-shadow: 1px 1px 2px #023e8a;
+  }
+
+  p {
+    font-size: 1.1em;
+  }
+
+  canvas {
+    border: 3px solid #0077b6;
+    background: #90e0ef;
+    display: block;
+    margin: 20px auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    border-radius: 10px;
+  }
+
+  .controls {
+    margin: 20px auto;
+    padding: 20px;
+    width: 320px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    text-align: left;
+  }
+
+  label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: bold;
+    color: #0077b6;
+  }
+
+  input[type=number] {
+    width: 100%;
+    padding: 5px;
+    border-radius: 8px;
+    border: 1px solid #0077b6;
+  }
+
+  button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-weight: bold;
+    background: #00b4d8;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    transition: 0.2s;
+  }
+
+  button:hover {
+    background: #0096c7;
+  }
+
+  #equation {
+    margin-top: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #03045e;
+    background: #ade8f4;
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+</style>
+</head>
+<body>
+
+<h1>Puente Colgante Interactivo</h1>
+<p>Ingresa h, k y p para ver cómo cambia la parábola del cable.</p>
+
+<div class="controls">
+  <label>h (centro del puente):
+    <input type="number" id="inputH" value="450">
+  </label>
+  <label>k (altura del vértice):
+    <input type="number" id="inputK" value="150">
+  </label>
+  <label>p (abertura, negativo para colgar):
+    <input type="number" id="inputP" value="-100">
+  </label>
+  <button id="btnActualizar">Actualizar</button>
+</div>
+
+<canvas id="puente" width="900" height="400"></canvas>
+<div id="equation">Ecuación:</div>
+
+<script>
+const canvas = document.getElementById("puente");
+const ctx = canvas.getContext("2d");
+
+const inputH = document.getElementById("inputH");
+const inputK = document.getElementById("inputK");
+const inputP = document.getElementById("inputP");
+const btnActualizar = document.getElementById("btnActualizar");
+const eqBox = document.getElementById("equation");
+
+function dibujarPuente(h, k, p) {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  const baseY = 350;
+  const x1 = 150;
+  const x2 = 750;
+
+  // torres con degradado
+  let torreGrad = ctx.createLinearGradient(x1-15,0,x1+15,0);
+  torreGrad.addColorStop(0,"#023e8a");
+  torreGrad.addColorStop(1,"#0077b6");
+  ctx.fillStyle = torreGrad;
+  ctx.fillRect(x1 - 15, baseY - 250, 30, 250);
+  ctx.fillRect(x2 - 15, baseY - 250, 30, 250);
+
+  // carretera
+  let roadGrad = ctx.createLinearGradient(x1,0,x2,0);
+  roadGrad.addColorStop(0,"#0077b6");
+  roadGrad.addColorStop(1,"#0096c7");
+  ctx.fillStyle = roadGrad;
+  ctx.fillRect(x1, baseY, x2 - x1, 12);
+
+  // cable parabólico con glow
+  ctx.beginPath();
+  ctx.strokeStyle = "red";
+  ctx.shadowColor = "rgba(255,0,0,0.5)";
+  ctx.shadowBlur = 6;
+  ctx.lineWidth = 4;
+  for(let x = x1; x <= x2; x++){
+    let y = ((x - h)**2)/(4*p) + k;
+    if(x===x1) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // ecuación
+  eqBox.innerHTML = `Ecuación: (x - ${h})² = 4(${p}) (y - ${k})`;
+}
+
+// inicial
+dibujarPuente(parseInt(inputH.value), parseInt(inputK.value), parseInt(inputP.value));
+
+btnActualizar.addEventListener("click", ()=>{
+  const h = parseFloat(inputH.value);
+  const k = parseFloat(inputK.value);
+  const p = parseFloat(inputP.value);
+  dibujarPuente(h,k,p);
+});
+</script>
+
+</body>
+</html>
